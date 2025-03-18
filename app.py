@@ -1,14 +1,14 @@
 import streamlit as st
 import base64
 from groq import Groq
-from groq_api_key import groq_api_key  # Import the Groq API key
+from groq_api_key import groq_api_key  
 
 # Initialize Groq client with the imported key
 client = Groq(api_key=groq_api_key)
 
-# System prompt for medical image analysis
+# System prompt for medical image analysis (unchanged)
 system_prompt = """
-You are a domain expert in medical image analysis. You are tasked with 
+You are a domain expert in medical image analysis. Your name is DiagnoVision AI. You are tasked with 
 examining medical images for a renowned hospital.
 Your expertise will help in identifying or 
 discovering any anomalies, diseases, conditions or
@@ -22,7 +22,8 @@ clearly articulate them in a structured format.
 3. Recommendations: Based on the analysis, suggest remedies, 
 tests or treatments as applicable.
 4. Treatments: If applicable, lay out detailed treatments 
-which can help in faster recovery.
+which can help in faster recovery. But also, mention that it's
+for concerns. Always suggest a professional.
 
 Important Notes to remember:
 1. Scope of response: Only respond if the image pertains to 
@@ -40,20 +41,85 @@ Please provide the final response with these 4 headings:
 Detailed Analysis, Analysis Report, Recommendations, and Treatments
 """
 
+# Custom CSS for a glassy, professional medical UI
+st.markdown("""
+    <style>
+    /* Background and global styling */
+    .stApp {
+        background: linear-gradient(135deg, #e6f0fa 0%, #f5f7fa 100%);
+        font-family: 'Segoe UI', sans-serif;
+    }
+    /* Glassy container */
+    .glass-container {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin-bottom: 20px;
+    }
+    /* Title styling */
+    h1 {
+        color: #1e3a8a;
+        font-weight: 700;
+        text-align: center;
+    }
+    /* Subheader styling */
+    h2 {
+        color: #3b82f6;
+        font-weight: 500;
+        text-align: center;
+    }
+    /* Button styling */
+    .stButton>button {
+        background-color: #1e3a8a;
+        color: white;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #3b82f6;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+    /* File uploader styling */
+    .stFileUploader {
+        border: 2px dashed #1e3a8a;
+        border-radius: 10px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    /* Footer styling */
+    .footer {
+        text-align: center;
+        color: #4b5e7e;
+        font-size: 14px;
+        margin-top: 20px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Streamlit UI configuration
-st.set_page_config(page_title="Visual Medical Assistant", page_icon="🩺", layout="wide")
-st.title("Visual Medical Assistant 👨‍⚕️ 🩺 🏥")
-st.subheader("An app to help with medical analysis using images")
+st.set_page_config(page_title="DiagnoVision AI", page_icon="🩺", layout="wide")
 
-# File uploader
-file_uploaded = st.file_uploader("Upload the image for Analysis", type=["png", "jpg", "jpeg"])
+# Main content in a glassy container
+with st.container():
+    st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+    st.title("DiagnoVision AI 👨‍⚕️ 🩺 🏥")
+    st.subheader("AI-Powered Medical Image Analysis")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# Display uploaded image
-if file_uploaded:
-    st.image(file_uploaded, width=200, caption="Uploaded Image")
-
-# Submit button
-submit = st.button("Generate Analysis")
+# File uploader and image display in a glassy container
+with st.container():
+    st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+    file_uploaded = st.file_uploader("Upload a Medical Image for Analysis", type=["png", "jpg", "jpeg"])
+    if file_uploaded:
+        st.image(file_uploaded, width=300, caption="Uploaded Medical Image")
+    submit = st.button("Generate Analysis")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Process the image and generate analysis
 if submit and file_uploaded:
@@ -81,7 +147,7 @@ if submit and file_uploaded:
             ]
 
             # Call Groq API
-            with st.spinner("Generating analysis..."):
+            with st.spinner("Analyzing Image..."):
                 response = client.chat.completions.create(
                     model="llama-3.2-11b-vision-preview",  # Multimodal model
                     messages=messages,
@@ -89,10 +155,13 @@ if submit and file_uploaded:
                     temperature=1.0,
                 )
 
-            # Display response
+            # Display response in a glassy container
             if response and response.choices:
-                st.title("Detailed Analysis Based on the Uploaded Image")
-                st.markdown(response.choices[0].message.content)
+                with st.container():
+                    st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+                    st.title("Analysis Results")
+                    st.markdown(response.choices[0].message.content)
+                    st.markdown('</div>', unsafe_allow_html=True)
             else:
                 st.error("No response received from the API.")
 
@@ -107,4 +176,10 @@ if submit and file_uploaded:
 
 # Footer
 st.markdown("---")
-st.write("Powered by Groq API | Date: March 17, 2025")
+st.markdown("""
+    <div class="footer">
+        Developed by Team EarlyMed<br>
+        A side project of <b>EarlyMed</b>, a platform developed by our team at <b>VIT-AP University</b>.<br>
+        Our goal is to help users stay aware of their health and leverage technology and AI for a healthier life.
+    </div>
+""", unsafe_allow_html=True)
