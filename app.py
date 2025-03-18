@@ -1,14 +1,18 @@
 import streamlit as st
 import base64
 from groq import Groq
-from groq_api_key import groq_api_key  
+from groq_api_key import groq_api_key  # Import the Groq API key
 
 # Initialize Groq client with the imported key
 client = Groq(api_key=groq_api_key)
 
+# Streamlit UI configuration (MUST BE FIRST STREAMLIT COMMAND)
+st.set_page_config(page_title="DiagnoVision AI", page_icon="🩺", layout="wide")
+
 # System prompt for medical image analysis (unchanged)
 system_prompt = """
-You are a domain expert in medical image analysis. Your name is DiagnoVision AI. You are tasked with 
+You are a domain expert in medical image analysis. Your name
+is DiagnoVision. You are tasked with 
 examining medical images for a renowned hospital.
 Your expertise will help in identifying or 
 discovering any anomalies, diseases, conditions or
@@ -101,9 +105,6 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
-# Streamlit UI configuration
-st.set_page_config(page_title="DiagnoVision AI", page_icon="🩺", layout="wide")
 
 # Main content in a glassy container
 with st.container():
